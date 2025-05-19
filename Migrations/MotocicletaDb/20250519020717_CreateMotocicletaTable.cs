@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SysTrack.Migrations.MotocicletaDb
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CreateMotocicletaTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +30,7 @@ namespace SysTrack.Migrations.MotocicletaDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "RAW(16)", nullable: false),
-                    Placa = table.Column<string>(type: "NVARCHAR2(10)", maxLength: 10, nullable: false),
+                    Placa = table.Column<string>(type: "NVARCHAR2(7)", maxLength: 7, nullable: false),
                     Marca = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
                     Modelo = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
                     Cor = table.Column<string>(type: "NVARCHAR2(30)", maxLength: 30, nullable: false),

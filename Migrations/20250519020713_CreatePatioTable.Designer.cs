@@ -12,8 +12,8 @@ using SysTrack.Infrastructure.Contexts;
 namespace SysTrack.Migrations
 {
     [DbContext(typeof(PatioDbContext))]
-    [Migration("20250518154419_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250519020713_CreatePatioTable")]
+    partial class CreatePatioTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

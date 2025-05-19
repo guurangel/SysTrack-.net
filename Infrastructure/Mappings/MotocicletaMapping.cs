@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SysTrack.Infrastructure.Persistence;
+using System;
 
 namespace SysTrack.Infrastructure.Mappings
 {
@@ -11,10 +12,6 @@ namespace SysTrack.Infrastructure.Mappings
             builder.ToTable("Motocicletas");
 
             builder.HasKey(m => m.Id);
-
-            builder.Property(m => m.Placa)
-                .HasMaxLength(10)
-                .IsRequired();
 
             builder.Property(m => m.Marca)
                 .HasMaxLength(50)

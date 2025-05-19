@@ -12,8 +12,8 @@ using SysTrack.Infrastructure.Contexts;
 namespace SysTrack.Migrations.MotocicletaDb
 {
     [DbContext(typeof(MotocicletaDbContext))]
-    [Migration("20250518154500_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250519020717_CreateMotocicletaTable")]
+    partial class CreateMotocicletaTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,8 +54,8 @@ namespace SysTrack.Migrations.MotocicletaDb
 
                     b.Property<string>("Placa")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("NVARCHAR2(10)");
+                        .HasMaxLength(7)
+                        .HasColumnType("NVARCHAR2(7)");
 
                     b.HasKey("Id");
 

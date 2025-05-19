@@ -51,8 +51,8 @@ namespace SysTrack.Migrations.MotocicletaDb
 
                     b.Property<string>("Placa")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("NVARCHAR2(10)");
+                        .HasMaxLength(7)
+                        .HasColumnType("NVARCHAR2(7)");
 
                     b.HasKey("Id");
 

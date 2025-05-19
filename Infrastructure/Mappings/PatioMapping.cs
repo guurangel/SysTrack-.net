@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.IO;
 using SysTrack.Infrastructure.Persistence;
+using System;
 
 namespace SysTrack.Infrastructure.Mappings
 {
