@@ -4,6 +4,7 @@ using SysTrack.Infrastructure.Contexts;
 using SysTrack.Infrastructure.Persistence;
 using SysTrack.DTO.Request;
 using SysTrack.DTO.Response;
+using SysTrack.Infrastructure.Extensions;
 
 namespace SysTrack.Controllers
 {
@@ -20,25 +21,14 @@ namespace SysTrack.Controllers
 
         // GET: api/motocicleta
         [HttpGet]
-        public async Task<ActionResult<List<MotocicletaResponse>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Motocicleta>>> GetAll([FromQuery] MotocicletaFiltroRequest filtro)
         {
-            var motos = await _context.Motocicletas
-                .Include(m => m.Patio)
-                .ToListAsync();
+            var query = _context.Motocicletas.AsQueryable()
+                                             .AplicarFiltros(filtro);
 
-            var response = motos.Select(m => new MotocicletaResponse
-            {
-                Id = m.Id,
-                Placa = m.Placa,
-                Marca = m.Marca,
-                Modelo = m.Modelo,
-                Cor = m.Cor,
-                DataEntrada = m.DataEntrada,
-                PatioId = m.PatioId,
-                PatioNome = m.Patio.Nome
-            }).ToList();
+            var resultado = await query.ToListAsync();
 
-            return Ok(response);
+            return Ok(resultado);
         }
 
         // GET: api/motocicleta/{id}
