@@ -11,9 +11,9 @@ namespace SysTrack.Controllers
     [Route("api/[controller]")]
     public class MotocicletaController : ControllerBase
     {
-        private readonly MotocicletaDbContext _context;
+        private readonly SysTrackDbContext _context;
 
-        public MotocicletaController(MotocicletaDbContext context)
+        public MotocicletaController(SysTrackDbContext context)
         {
             _context = context;
         }

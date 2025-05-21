@@ -3,16 +3,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SysTrack.Migrations.MotocicletaDb
+namespace SysTrack.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateMotocicletaTable : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Patio",
+                name: "Patios",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "RAW(16)", nullable: false),
@@ -22,7 +22,7 @@ namespace SysTrack.Migrations.MotocicletaDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Patio", x => x.Id);
+                    table.PrimaryKey("PK_Patios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -30,7 +30,7 @@ namespace SysTrack.Migrations.MotocicletaDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "RAW(16)", nullable: false),
-                    Placa = table.Column<string>(type: "NVARCHAR2(7)", maxLength: 7, nullable: false),
+                    Placa = table.Column<string>(type: "varchar(7)", maxLength: 7, nullable: false),
                     Marca = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
                     Modelo = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
                     Cor = table.Column<string>(type: "NVARCHAR2(30)", maxLength: 30, nullable: false),
@@ -41,9 +41,9 @@ namespace SysTrack.Migrations.MotocicletaDb
                 {
                     table.PrimaryKey("PK_Motocicletas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Motocicletas_Patio_PatioId",
+                        name: "FK_Motocicletas_Patios_PatioId",
                         column: x => x.PatioId,
-                        principalTable: "Patio",
+                        principalTable: "Patios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -61,7 +61,7 @@ namespace SysTrack.Migrations.MotocicletaDb
                 name: "Motocicletas");
 
             migrationBuilder.DropTable(
-                name: "Patio");
+                name: "Patios");
         }
     }
 }

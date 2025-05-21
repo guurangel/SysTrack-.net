@@ -26,7 +26,6 @@ namespace SysTrack.Infrastructure.Mappings
 
             builder.HasMany(p => p.Motocicletas)
                 .WithOne(m => m.Patio)
-                .HasForeignKey(m => m.PatioId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

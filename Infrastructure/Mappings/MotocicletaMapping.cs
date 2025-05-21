@@ -9,9 +9,16 @@ namespace SysTrack.Infrastructure.Mappings
     {
         public void Configure(EntityTypeBuilder<Motocicleta> builder)
         {
-            builder.ToTable("Motocicletas");
+            builder
+                .ToTable("Motocicletas");
 
-            builder.HasKey(m => m.Id);
+            builder
+                .HasKey("Id");
+
+            builder.Property(m => m.Placa)
+                .HasMaxLength(7)
+                .HasColumnType("varchar(7)")
+                .IsRequired();
 
             builder.Property(m => m.Marca)
                 .HasMaxLength(50)
@@ -30,7 +37,7 @@ namespace SysTrack.Infrastructure.Mappings
 
             builder.HasOne(m => m.Patio)
                 .WithMany(p => p.Motocicletas)
-                .HasForeignKey(m => m.PatioId)
+                .HasForeignKey(p => p.PatioId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

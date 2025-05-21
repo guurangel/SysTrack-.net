@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using SysTrack.Infrastructure.Contexts;
 
 #nullable disable
 
-namespace SysTrack.Migrations.MotocicletaDb
+namespace SysTrack.Migrations
 {
-    [DbContext(typeof(MotocicletaDbContext))]
-    partial class MotocicletaDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SysTrackDbContext))]
+    [Migration("20250521140233_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace SysTrack.Migrations.MotocicletaDb
                     b.Property<string>("Placa")
                         .IsRequired()
                         .HasMaxLength(7)
-                        .HasColumnType("NVARCHAR2(7)");
+                        .HasColumnType("varchar(7)");
 
                     b.HasKey("Id");
 
@@ -82,7 +85,7 @@ namespace SysTrack.Migrations.MotocicletaDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patio");
+                    b.ToTable("Patios", (string)null);
                 });
 
             modelBuilder.Entity("SysTrack.Infrastructure.Persistence.Motocicleta", b =>

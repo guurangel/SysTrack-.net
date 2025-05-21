@@ -10,8 +10,8 @@ using SysTrack.Infrastructure.Contexts;
 
 namespace SysTrack.Migrations
 {
-    [DbContext(typeof(PatioDbContext))]
-    partial class PatioDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SysTrackDbContext))]
+    partial class SysTrackDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -52,13 +52,13 @@ namespace SysTrack.Migrations
                     b.Property<string>("Placa")
                         .IsRequired()
                         .HasMaxLength(7)
-                        .HasColumnType("NVARCHAR2(7)");
+                        .HasColumnType("varchar(7)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PatioId");
 
-                    b.ToTable("Motocicleta");
+                    b.ToTable("Motocicletas", (string)null);
                 });
 
             modelBuilder.Entity("SysTrack.Infrastructure.Persistence.Patio", b =>

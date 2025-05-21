@@ -11,9 +11,9 @@ namespace SysTrack.Controllers
     [Route("api/[controller]")]
     public class PatioController : ControllerBase
     {
-        private readonly PatioDbContext _context;
+        private readonly SysTrackDbContext _context;
 
-        public PatioController(PatioDbContext context)
+        public PatioController(SysTrackDbContext context)
         {
             _context = context;
         }
