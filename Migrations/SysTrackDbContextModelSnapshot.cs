@@ -58,6 +58,9 @@ namespace SysTrack.Migrations
 
                     b.HasIndex("PatioId");
 
+                    b.HasIndex("Placa")
+                        .IsUnique();
+
                     b.ToTable("Motocicletas", (string)null);
                 });
 

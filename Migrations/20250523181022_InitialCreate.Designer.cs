@@ -12,7 +12,7 @@ using SysTrack.Infrastructure.Contexts;
 namespace SysTrack.Migrations
 {
     [DbContext(typeof(SysTrackDbContext))]
-    [Migration("20250521140233_InitialCreate")]
+    [Migration("20250523181022_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -60,6 +60,9 @@ namespace SysTrack.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PatioId");
+
+                    b.HasIndex("Placa")
+                        .IsUnique();
 
                     b.ToTable("Motocicletas", (string)null);
                 });

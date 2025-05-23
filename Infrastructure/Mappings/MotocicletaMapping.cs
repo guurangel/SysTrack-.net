@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SysTrack.Infrastructure.Persistence;
-using System;
 
 namespace SysTrack.Infrastructure.Mappings
 {
@@ -13,12 +13,21 @@ namespace SysTrack.Infrastructure.Mappings
                 .ToTable("Motocicletas");
 
             builder
-                .HasKey("Id");
+                .HasKey(m => m.Id);
 
             builder.Property(m => m.Placa)
                 .HasMaxLength(7)
                 .HasColumnType("varchar(7)")
-                .IsRequired();
+                .IsRequired()
+                .ValueGeneratedNever();
+
+            // Impede alteração da placa após inserção
+            builder.Property(m => m.Placa)
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+
+            // Garante que a placa seja única
+            builder.HasIndex(m => m.Placa)
+                .IsUnique();
 
             builder.Property(m => m.Marca)
                 .HasMaxLength(50)
@@ -37,7 +46,7 @@ namespace SysTrack.Infrastructure.Mappings
 
             builder.HasOne(m => m.Patio)
                 .WithMany(p => p.Motocicletas)
-                .HasForeignKey(p => p.PatioId)
+                .HasForeignKey(m => m.PatioId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

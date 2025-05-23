@@ -86,7 +86,13 @@ namespace SysTrack.Controllers
             if (moto == null)
                 return NotFound();
 
-            moto.Placa = request.Placa;
+            // Verifica se a placa foi alterada
+            if (!string.Equals(moto.Placa, request.Placa, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("A placa da motocicleta não pode ser alterada.");
+            }
+
+            // Atualiza os outros campos
             moto.Marca = request.Marca;
             moto.Modelo = request.Modelo;
             moto.Cor = request.Cor;

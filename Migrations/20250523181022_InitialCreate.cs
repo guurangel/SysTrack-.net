@@ -52,6 +52,12 @@ namespace SysTrack.Migrations
                 name: "IX_Motocicletas_PatioId",
                 table: "Motocicletas",
                 column: "PatioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Motocicletas_Placa",
+                table: "Motocicletas",
+                column: "Placa",
+                unique: true);
         }
 
         /// <inheritdoc />
