@@ -78,7 +78,7 @@ A API estará disponível em:
 📍 `http://localhost:5004`
 
 Acesse o Swagger para testar os endpoints:  
-📘 `http://localhost:5004/swagger-ui.html`
+📘 `http://localhost:5004/swagger/index.html`
 
 ---
 
