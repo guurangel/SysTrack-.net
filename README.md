@@ -16,7 +16,9 @@
 
 ## 🧾 Sobre o Projeto
 
-O objetivo do **SysTrack** é fornecer uma API RESTful robusta para cadastro, listagem e filtragem de **pátios** e **motocicletas**, com validações e regras de negócio bem definidas. A aplicação é organizada seguindo boas práticas do ASP.NET Core Web API, com uso de Filters para filtros dinâmicos, DTOs para abstração de dados, e integração com o Swagger.
+O objetivo do SysTrack é fornecer uma API RESTful robusta para cadastro, listagem e filtragem de pátios e motocicletas, com validações e regras de negócio bem definidas. A aplicação é organizada seguindo boas práticas do ASP.NET Core Web API, utilizando Filters para filtragens dinâmicas, DTOs para abstração de dados e integração com o Swagger para documentação.
+
+Nosso projeto tem como objetivo o monitoramento preciso das motocicletas cadastradas no sistema, a fim de evitar problemas decorrentes da falta de controle e rastreamento dessas unidades.
 
 ---
 
@@ -112,7 +114,7 @@ Acesse o Swagger para testar os endpoints:
 
 ## ✅ Funcionalidades
 
-- 🧱 Organização em camadas (Controllers, DTO, Infrastructure)
+- 🧱 Organização em camadas (Controllers, DTO, Infrastructure, Services)
 - :file_cabinet: Utilizaçao de Migrations para criação da estrutura do banco de dados
 - 📖 Validações detalhadas com mensagens amigáveis
 - 📊 Documentação interativa via Swagger
@@ -140,6 +142,7 @@ Patio: Patio
 Id: Guid
 Nome: String
 Endereco: String
+CapacidadeMaxima: Int
 DataCriacao: DateTime
 Motocicleta: List
 ```
