@@ -5,6 +5,7 @@ using SysTrack.Infrastructure.Persistence;
 using SysTrack.DTO.Request;
 using SysTrack.DTO.Response;
 using SysTrack.Infrastructure.Extensions;
+using SysTrack.Services;
 
 namespace SysTrack.Controllers
 {
@@ -13,10 +14,12 @@ namespace SysTrack.Controllers
     public class MotocicletaController : ControllerBase
     {
         private readonly SysTrackDbContext _context;
+        private readonly MotocicletaService _service;
 
-        public MotocicletaController(SysTrackDbContext context)
+        public MotocicletaController(SysTrackDbContext context, MotocicletaService service)
         {
             _context = context;
+            _service = service;
         }
 
         // GET: api/motocicleta
@@ -27,7 +30,6 @@ namespace SysTrack.Controllers
                                              .AplicarFiltros(filtro);
 
             var resultado = await query.ToListAsync();
-
             return Ok(resultado);
         }
 
@@ -61,6 +63,9 @@ namespace SysTrack.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] MotocicletaRequest request)
         {
+            if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
+                return BadRequest("Capacidade máxima do pátio atingida.");
+
             var moto = new Motocicleta
             {
                 Id = Guid.NewGuid(),
@@ -78,21 +83,20 @@ namespace SysTrack.Controllers
             return CreatedAtAction(nameof(GetById), new { id = moto.Id }, moto);
         }
 
-        // PUT: api/motocicleta/{id}
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] MotocicletaRequest request)
+        public async Task<ActionResult> Update(Guid id, [FromBody] AtualizarMotocicletaRequest request)
         {
             var moto = await _context.Motocicletas.FindAsync(id);
             if (moto == null)
                 return NotFound();
 
-            // Verifica se a placa foi alterada
-            if (!string.Equals(moto.Placa, request.Placa, StringComparison.OrdinalIgnoreCase))
+            // Se for mudar de pátio, verifica se o novo tem espaço
+            if (moto.PatioId != request.PatioId)
             {
-                return BadRequest("A placa da motocicleta não pode ser alterada.");
+                if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
+                    return BadRequest("Capacidade máxima do pátio de destino atingida.");
             }
 
-            // Atualiza os outros campos
             moto.Marca = request.Marca;
             moto.Modelo = request.Modelo;
             moto.Cor = request.Cor;

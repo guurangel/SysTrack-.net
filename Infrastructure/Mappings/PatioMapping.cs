@@ -21,6 +21,9 @@ namespace SysTrack.Infrastructure.Mappings
                 .HasMaxLength(200)
                 .IsRequired();
 
+            builder.Property(p => p.CapacidadeMaxima)
+                .IsRequired();
+
             builder.Property(p => p.DataCriacao)
                 .IsRequired();
 

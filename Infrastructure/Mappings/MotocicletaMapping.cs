@@ -21,11 +21,9 @@ namespace SysTrack.Infrastructure.Mappings
                 .IsRequired()
                 .ValueGeneratedNever();
 
-            // Impede alteração da placa após inserção
             builder.Property(m => m.Placa)
                 .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
-            // Garante que a placa seja única
             builder.HasIndex(m => m.Placa)
                 .IsUnique();
 

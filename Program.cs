@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SysTrack.Infrastructure.Contexts;
+using SysTrack.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +11,16 @@ var oracleConnectionString = builder.Configuration.GetConnectionString("Oracle")
 builder.Services.AddDbContext<SysTrackDbContext>(options =>
     options.UseOracle(oracleConnectionString));
 
-// Adicionar suporte a controllers (MVC)
-builder.Services.AddControllers();
+// Configurar controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
+// Registrar suas services
+builder.Services.AddScoped<MotocicletaService>();
 
 // Adicionar Swagger/OpenAPI para documentação
 builder.Services.AddEndpointsApiExplorer();

@@ -15,6 +15,10 @@ namespace SysTrack.Infrastructure.Persistence
         public string Endereco { get; set; } = string.Empty;
 
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "A capacidade máxima deve ser maior que zero.")]
+        public int CapacidadeMaxima { get; set; }
+
+        [Required]
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
 
         public ICollection<Motocicleta> Motocicletas { get; set; } = new List<Motocicleta>();

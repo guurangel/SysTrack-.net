@@ -31,6 +31,7 @@ namespace SysTrack.Controllers
                 Id = p.Id,
                 Nome = p.Nome,
                 Endereco = p.Endereco,
+                CapacidadeMaxima = p.CapacidadeMaxima,
                 DataCriacao = p.DataCriacao,
                 Motocicletas = p.Motocicletas.Select(m => new MotocicletaResponse
                 {
@@ -64,6 +65,7 @@ namespace SysTrack.Controllers
                 Id = p.Id,
                 Nome = p.Nome,
                 Endereco = p.Endereco,
+                CapacidadeMaxima = p.CapacidadeMaxima,
                 DataCriacao = p.DataCriacao,
                 Motocicletas = p.Motocicletas.Select(m => new MotocicletaResponse
                 {
@@ -90,13 +92,24 @@ namespace SysTrack.Controllers
                 Id = Guid.NewGuid(),
                 Nome = request.Nome,
                 Endereco = request.Endereco,
+                CapacidadeMaxima = request.CapacidadeMaxima,
                 DataCriacao = DateTime.UtcNow
             };
 
             _context.Patios.Add(patio);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = patio.Id }, patio);
+            var response = new PatioResponse
+            {
+                Id = patio.Id,
+                Nome = patio.Nome,
+                Endereco = patio.Endereco,
+                CapacidadeMaxima = patio.CapacidadeMaxima,
+                DataCriacao = patio.DataCriacao,
+                Motocicletas = new List<MotocicletaResponse>()
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = patio.Id }, response);
         }
 
         // PUT: api/patio/{id}
@@ -109,6 +122,7 @@ namespace SysTrack.Controllers
 
             patio.Nome = request.Nome;
             patio.Endereco = request.Endereco;
+            patio.CapacidadeMaxima = request.CapacidadeMaxima;
 
             _context.Patios.Update(patio);
             await _context.SaveChangesAsync();

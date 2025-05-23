@@ -8,9 +8,9 @@ namespace SysTrack.Infrastructure.Persistence
 
         [Required]
         [RegularExpression(@"^[A-Z]{3}[0-9][A-Z][0-9]{2}$", ErrorMessage = "Placa deve estar no padrão Brasil/Mercosul (ex: ABC1D23)")]
-        public string Placa { get; set; }
+        public string Placa { get; set; } = string.Empty;
 
-        public string Marca { get; set; }
+        public string Marca { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]
