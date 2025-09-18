@@ -43,6 +43,17 @@ namespace SysTrack.Controllers
                     DataEntrada = m.DataEntrada,
                     PatioId = m.PatioId,
                     PatioNome = p.Nome
+                }).ToList(),
+                Usuarios = p.Usuarios.Select(u => new UsuarioResponse
+                {
+                    Id =u.Id,
+                    Nome = u.Nome,
+                    Email = u.Email,
+                    Cpf = u.Cpf,
+                    DataAdmissao = u.DataAdmissao,
+                    Cargo = u.Cargo,
+                    PatioId = u.PatioId,
+                    PatioNome = p.Nome
                 }).ToList()
             }).ToList();
 
