@@ -11,5 +11,7 @@
         public DateTime DataCriacao { get; set; }
 
         public List<MotocicletaResponse> Motocicletas { get; set; } = new();
+
+        public List<UsuarioResponse> Usuarios { get; set; } = new();
     }
 }
