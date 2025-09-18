@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using SysTrack.Infrastructure.Persistance;
 
 namespace SysTrack.Infrastructure.Persistence
 {
@@ -22,5 +23,7 @@ namespace SysTrack.Infrastructure.Persistence
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
 
         public ICollection<Motocicleta> Motocicletas { get; set; } = new List<Motocicleta>();
+
+        public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
     }
 }
