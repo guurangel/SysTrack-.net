@@ -8,5 +8,7 @@ namespace SysTrack.DTO.Response
         public string Nome { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public Cargo Cargo { get; set; }
+        public List<Link> Links { get; set; } = new();
+
     }
 }

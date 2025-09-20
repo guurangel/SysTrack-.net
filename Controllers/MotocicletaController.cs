@@ -22,27 +22,48 @@ namespace SysTrack.Controllers
             _service = service;
         }
 
-        // GET: api/motocicleta
+        // GET: api/motocicleta?pageNumber=1&pageSize=10
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Motocicleta>>> GetAll([FromQuery] MotocicletaFiltroRequest filtro)
+        public async Task<ActionResult<PagedResponse<MotocicletaResponse>>> GetAll(
+            [FromQuery] MotocicletaFiltroRequest filtro,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var query = _context.Motocicletas.AsQueryable()
-                                             .AplicarFiltros(filtro);
+            var query = _context.Motocicletas.Include(m => m.Patio).AplicarFiltros(filtro);
+            var totalItems = await query.CountAsync();
 
-            var resultado = await query.ToListAsync();
-            return Ok(resultado);
+            var motos = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var response = motos.Select(m => new MotocicletaResponse
+            {
+                Id = m.Id,
+                Placa = m.Placa,
+                Marca = m.Marca,
+                Modelo = m.Modelo,
+                Cor = m.Cor,
+                DataEntrada = m.DataEntrada,
+                PatioId = m.PatioId,
+                PatioNome = m.Patio.Nome,
+                Links = new List<Link>
+                {
+                    new Link { Href = Url.Action(nameof(GetById), new { id = m.Id })!, Rel = "self", Method = "GET" },
+                    new Link { Href = Url.Action(nameof(Update), new { id = m.Id })!, Rel = "update", Method = "PUT" },
+                    new Link { Href = Url.Action(nameof(Delete), new { id = m.Id })!, Rel = "delete", Method = "DELETE" }
+                }
+            }).ToList();
+
+            return Ok(new PagedResponse<MotocicletaResponse>(response, pageNumber, pageSize, totalItems));
         }
 
         // GET: api/motocicleta/{id}
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<MotocicletaResponse>> GetById(Guid id)
         {
-            var m = await _context.Motocicletas
-                .Include(m => m.Patio)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (m == null)
-                return NotFound();
+            var m = await _context.Motocicletas.Include(m => m.Patio).FirstOrDefaultAsync(m => m.Id == id);
+            if (m == null) return NotFound();
 
             var response = new MotocicletaResponse
             {
@@ -53,7 +74,13 @@ namespace SysTrack.Controllers
                 Cor = m.Cor,
                 DataEntrada = m.DataEntrada,
                 PatioId = m.PatioId,
-                PatioNome = m.Patio.Nome
+                PatioNome = m.Patio.Nome,
+                Links = new List<Link>
+                {
+                    new Link { Href = Url.Action(nameof(GetById), new { id = m.Id })!, Rel = "self", Method = "GET" },
+                    new Link { Href = Url.Action(nameof(Update), new { id = m.Id })!, Rel = "update", Method = "PUT" },
+                    new Link { Href = Url.Action(nameof(Delete), new { id = m.Id })!, Rel = "delete", Method = "DELETE" }
+                }
             };
 
             return Ok(response);
@@ -61,7 +88,7 @@ namespace SysTrack.Controllers
 
         // POST: api/motocicleta
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] MotocicletaRequest request)
+        public async Task<ActionResult<MotocicletaResponse>> Create([FromBody] MotocicletaRequest request)
         {
             if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
                 return BadRequest("Capacidade máxima do pátio atingida.");
@@ -80,17 +107,32 @@ namespace SysTrack.Controllers
             _context.Motocicletas.Add(moto);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = moto.Id }, moto);
+            var response = new MotocicletaResponse
+            {
+                Id = moto.Id,
+                Placa = moto.Placa,
+                Marca = moto.Marca,
+                Modelo = moto.Modelo,
+                Cor = moto.Cor,
+                DataEntrada = moto.DataEntrada,
+                PatioId = moto.PatioId,
+                PatioNome = (await _context.Patios.FindAsync(moto.PatioId))!.Nome,
+                Links = new List<Link>
+                {
+                    new Link { Href = Url.Action(nameof(GetById), new { id = moto.Id })!, Rel = "self", Method = "GET" }
+                }
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = moto.Id }, response);
         }
 
+        // PUT: api/motocicleta/{id}
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Update(Guid id, [FromBody] AtualizarMotocicletaRequest request)
         {
             var moto = await _context.Motocicletas.FindAsync(id);
-            if (moto == null)
-                return NotFound();
+            if (moto == null) return NotFound();
 
-            // Se for mudar de pátio, verifica se o novo tem espaço
             if (moto.PatioId != request.PatioId)
             {
                 if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
@@ -113,8 +155,7 @@ namespace SysTrack.Controllers
         public async Task<ActionResult> Delete(Guid id)
         {
             var moto = await _context.Motocicletas.FindAsync(id);
-            if (moto == null)
-                return NotFound();
+            if (moto == null) return NotFound();
 
             _context.Motocicletas.Remove(moto);
             await _context.SaveChangesAsync();

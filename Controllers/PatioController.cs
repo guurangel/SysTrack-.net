@@ -18,13 +18,22 @@ namespace SysTrack.Controllers
             _context = context;
         }
 
-        // GET: api/patio
+        // GET: api/patio?pageNumber=1&pageSize=10
         [HttpGet]
-        public async Task<ActionResult<List<PatioResponse>>> GetAll()
+        public async Task<ActionResult<PagedResponse<PatioResponse>>> GetAll(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var patios = await _context.Patios
+            var query = _context.Patios
                 .Include(p => p.Motocicletas)
                 .Include(p => p.Usuarios)
+                .AsQueryable();
+
+            var totalItems = await query.CountAsync();
+
+            var patios = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             var response = patios.Select(p => new PatioResponse
@@ -43,18 +52,32 @@ namespace SysTrack.Controllers
                     Cor = m.Cor,
                     DataEntrada = m.DataEntrada,
                     PatioId = m.PatioId,
-                    PatioNome = p.Nome
+                    PatioNome = p.Nome,
+                    Links = new List<Link>
+                    {
+                        new Link { Href = Url.Action(nameof(MotocicletaController.GetById), "Motocicleta", new { id = m.Id })!, Rel = "self", Method = "GET" }
+                    }
                 }).ToList(),
                 Usuarios = p.Usuarios.Select(u => new UsuarioSimplesResponse
                 {
-                    Id =u.Id,
+                    Id = u.Id,
                     Nome = u.Nome,
                     Email = u.Email,
-                    Cargo = u.Cargo
-                }).ToList()
+                    Cargo = u.Cargo,
+                    Links = new List<Link>
+                    {
+                        new Link { Href = Url.Action("GetById", "Usuario", new { id = u.Id })!, Rel = "self", Method = "GET" }
+                    }
+                }).ToList(),
+                Links = new List<Link>
+                {
+                    new Link { Href = Url.Action(nameof(GetById), new { id = p.Id })!, Rel = "self", Method = "GET" },
+                    new Link { Href = Url.Action(nameof(Update), new { id = p.Id })!, Rel = "update", Method = "PUT" },
+                    new Link { Href = Url.Action(nameof(Delete), new { id = p.Id })!, Rel = "delete", Method = "DELETE" }
+                }
             }).ToList();
 
-            return Ok(response);
+            return Ok(new PagedResponse<PatioResponse>(response, pageNumber, pageSize, totalItems));
         }
 
         // GET: api/patio/{id}
@@ -85,15 +108,29 @@ namespace SysTrack.Controllers
                     Cor = m.Cor,
                     DataEntrada = m.DataEntrada,
                     PatioId = m.PatioId,
-                    PatioNome = p.Nome
+                    PatioNome = p.Nome,
+                    Links = new List<Link>
+                    {
+                        new Link { Href = Url.Action(nameof(MotocicletaController.GetById), "Motocicleta", new { id = m.Id })!, Rel = "self", Method = "GET" }
+                    }
                 }).ToList(),
                 Usuarios = p.Usuarios.Select(u => new UsuarioSimplesResponse
                 {
                     Id = u.Id,
                     Nome = u.Nome,
                     Email = u.Email,
-                    Cargo = u.Cargo
-                }).ToList()
+                    Cargo = u.Cargo,
+                    Links = new List<Link>
+                    {
+                        new Link { Href = Url.Action("GetById", "Usuario", new { id = u.Id })!, Rel = "self", Method = "GET" }
+                    }
+                }).ToList(),
+                Links = new List<Link>
+                {
+                    new Link { Href = Url.Action(nameof(GetById), new { id = p.Id })!, Rel = "self", Method = "GET" },
+                    new Link { Href = Url.Action(nameof(Update), new { id = p.Id })!, Rel = "update", Method = "PUT" },
+                    new Link { Href = Url.Action(nameof(Delete), new { id = p.Id })!, Rel = "delete", Method = "DELETE" }
+                }
             };
 
             return Ok(response);
@@ -101,7 +138,7 @@ namespace SysTrack.Controllers
 
         // POST: api/patio
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] PatioRequest request)
+        public async Task<ActionResult<PatioResponse>> Create([FromBody] PatioRequest request)
         {
             var patio = new Patio
             {
@@ -122,7 +159,12 @@ namespace SysTrack.Controllers
                 Endereco = patio.Endereco,
                 CapacidadeMaxima = patio.CapacidadeMaxima,
                 DataCriacao = patio.DataCriacao,
-                Motocicletas = new List<MotocicletaResponse>()
+                Motocicletas = new List<MotocicletaResponse>(),
+                Usuarios = new List<UsuarioSimplesResponse>(),
+                Links = new List<Link>
+                {
+                    new Link { Href = Url.Action(nameof(GetById), new { id = patio.Id })!, Rel = "self", Method = "GET" }
+                }
             };
 
             return CreatedAtAction(nameof(GetById), new { id = patio.Id }, response);

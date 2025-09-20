@@ -13,5 +13,8 @@ namespace SysTrack.DTO.Response
         public DateTime DataAdmissao { get; set; }
         public Guid PatioId { get; set; }
         public string PatioNome { get; set; } = string.Empty;
+
+        public List<Link> Links { get; set; } = new();
+
     }
 }

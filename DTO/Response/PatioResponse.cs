@@ -13,5 +13,8 @@
         public List<MotocicletaResponse> Motocicletas { get; set; } = new();
 
         public List<UsuarioSimplesResponse> Usuarios { get; set; } = new();
+
+        public List<Link> Links { get; set; } = new();
+
     }
 }
