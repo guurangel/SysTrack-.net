@@ -45,7 +45,7 @@ namespace SysTrack.Infrastructure.Mappings
                    .IsRequired();
 
             builder.HasOne(u => u.Patio)
-                   .WithMany(u => u.Usuarios)
+                   .WithMany(p => p.Usuarios)
                    .HasForeignKey(u => u.PatioId)
                    .OnDelete(DeleteBehavior.Cascade);
         }

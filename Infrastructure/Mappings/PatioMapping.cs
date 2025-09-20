@@ -30,6 +30,10 @@ namespace SysTrack.Infrastructure.Mappings
             builder.HasMany(p => p.Motocicletas)
                 .WithOne(m => m.Patio)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(p => p.Usuarios)
+                .WithOne(u => u.Patio)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -24,6 +24,7 @@ namespace SysTrack.Controllers
         {
             var patios = await _context.Patios
                 .Include(p => p.Motocicletas)
+                .Include(p => p.Usuarios)
                 .ToListAsync();
 
             var response = patios.Select(p => new PatioResponse
@@ -44,16 +45,12 @@ namespace SysTrack.Controllers
                     PatioId = m.PatioId,
                     PatioNome = p.Nome
                 }).ToList(),
-                Usuarios = p.Usuarios.Select(u => new UsuarioResponse
+                Usuarios = p.Usuarios.Select(u => new UsuarioSimplesResponse
                 {
                     Id =u.Id,
                     Nome = u.Nome,
                     Email = u.Email,
-                    Cpf = u.Cpf,
-                    DataAdmissao = u.DataAdmissao,
-                    Cargo = u.Cargo,
-                    PatioId = u.PatioId,
-                    PatioNome = p.Nome
+                    Cargo = u.Cargo
                 }).ToList()
             }).ToList();
 
@@ -66,6 +63,7 @@ namespace SysTrack.Controllers
         {
             var p = await _context.Patios
                 .Include(p => p.Motocicletas)
+                .Include(p => p.Usuarios)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (p == null)
@@ -88,6 +86,13 @@ namespace SysTrack.Controllers
                     DataEntrada = m.DataEntrada,
                     PatioId = m.PatioId,
                     PatioNome = p.Nome
+                }).ToList(),
+                Usuarios = p.Usuarios.Select(u => new UsuarioSimplesResponse
+                {
+                    Id = u.Id,
+                    Nome = u.Nome,
+                    Email = u.Email,
+                    Cargo = u.Cargo
                 }).ToList()
             };
 
