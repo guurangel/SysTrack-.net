@@ -60,7 +60,7 @@ git clone https://github.com/guurangel/SysTrack-.net.git
 # Acesse a pasta do projeto
 cd SysTrack-.net
 
-# Configure a string de conexão Oracle
+# Configure a string de conexão Oracle dentro de appsettings.json
 "ConnectionStrings": {
   "Oracle": "User Id=SEU_USUARIO;Password=SUA_SENHA;Data Source=SEU_HOST:PORTA/SEU_SERVICE_NAME"
 }
@@ -112,6 +112,31 @@ Acesse o Swagger para testar os endpoints:
 
 ---
 
+### 👤 Usuário
+
+- `GET /api/usuario` — Lista todos os usuários (com filtros e paginação)
+- `POST /api/usuario` — Cadastra um novo usuário
+- `GET /api/usuario/{id}` — Busca por ID
+- `PUT /api/usuario/{id}` — Atualiza dados
+- `DELETE /api/usuario/{id}` — Remove um usuário
+
+**Filtros disponíveis (como parâmetros da URL):**
+
+- `nome` — buscar por parte do nome
+- `email` — buscar por parte do e-mail
+- `cpf` — buscar por parte do CPF
+- `cargo` — filtrar por cargo do usuário
+- `patioId` — buscar pelo pátio associado
+- `dataAdmissaoInicio` — usuários admitidos a partir desta data
+- `dataAdmissaoFim` — usuários admitidos até esta data
+
+**Paginação:**
+
+- `pageNumber` — número da página (default: 1)
+- `pageSize` — quantidade de registros por página (default: 10)
+
+---
+
 ## ✅ Funcionalidades
 
 - 🧱 Organização em camadas (Controllers, DTO, Infrastructure, Services)
@@ -145,6 +170,20 @@ Endereco: String
 CapacidadeMaxima: Int
 DataCriacao: DateTime
 Motocicleta: List
+```
+
+---
+
+### Usuario
+
+```
+Id: Guid
+Nome: String
+Email: String
+Senha: String
+Cpf: String
+Cargo: Cargo
+Patio: Patio
 ```
 
 ---
