@@ -1,47 +1,74 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
 using SysTrack.Infrastructure.Contexts;
 using SysTrack.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar string de conexão Oracle (via appsettings.json)
-var oracleConnectionString = builder.Configuration.GetConnectionString("Oracle");
+builder.Configuration.AddEnvironmentVariables();
 
-// Adicionar apenas o DbContext unificado
+var oracleConnectionString = builder.Configuration.GetConnectionString("Oracle")
+    ?? Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING");
+
 builder.Services.AddDbContext<SysTrackDbContext>(options =>
     options.UseOracle(oracleConnectionString));
 
-// Configurar controllers
+builder.Services.AddHealthChecks()
+    .AddCheck("Database", () =>
+    {
+        try
+        {
+            using var scope = builder.Services.BuildServiceProvider().CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<SysTrackDbContext>();
+            db.Database.CanConnect();
+            return HealthCheckResult.Healthy("Conectado ao banco de dados com sucesso.");
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy("Falha ao conectar ao banco de dados.", ex);
+        }
+    });
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         options.JsonSerializerOptions.WriteIndented = true;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Registrar suas services
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
+
 builder.Services.AddScoped<MotocicletaService>();
 
-// Adicionar Swagger/OpenAPI para documentação
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configurar pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
 }
 else
 {
     app.UseHttpsRedirection();
 }
 
+app.UseMiddleware<SysTrack.Middleware.ApiKeyMiddleware>();
+
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHealthChecks("/health");
+
 app.Run();

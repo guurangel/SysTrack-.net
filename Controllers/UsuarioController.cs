@@ -9,7 +9,8 @@ using SysTrack.Infrastructure.Extensions;
 namespace SysTrack.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class UsuarioController : ControllerBase
     {
         private readonly SysTrackDbContext _context;

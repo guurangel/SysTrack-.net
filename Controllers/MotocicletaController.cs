@@ -10,7 +10,8 @@ using SysTrack.Services;
 namespace SysTrack.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class MotocicletaController : ControllerBase
     {
         private readonly SysTrackDbContext _context;
