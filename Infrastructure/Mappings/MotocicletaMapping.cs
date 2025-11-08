@@ -42,6 +42,17 @@ namespace SysTrack.Infrastructure.Mappings
             builder.Property(m => m.DataEntrada)
                 .IsRequired();
 
+            builder.Property(m => m.Ano)
+                .IsRequired();
+
+            builder.Property(m => m.Quilometragem)
+                .IsRequired();
+
+            builder.Property(m => m.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
             builder.HasOne(m => m.Patio)
                 .WithMany(p => p.Motocicletas)
                 .HasForeignKey(m => m.PatioId)

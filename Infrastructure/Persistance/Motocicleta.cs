@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using SysTrack.Infrastructure.Persistance.Enums;
 
 namespace SysTrack.Infrastructure.Persistence
 {
@@ -28,5 +29,15 @@ namespace SysTrack.Infrastructure.Persistence
 
         [Required]
         public Patio Patio { get; set; } = null!;
+
+        [Required]
+        public int Ano { get; set; }
+
+        [Required]
+        public int Quilometragem { get; set; }
+
+        [Required]
+        [EnumDataType(typeof(StatusMotocicleta))]
+        public StatusMotocicleta Status { get; set; }
     }
 }

@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SysTrack.Infrastructure.Contexts;
-using SysTrack.Infrastructure.Persistence;
+using Microsoft.ML;
 using SysTrack.DTO.Request;
 using SysTrack.DTO.Response;
+using SysTrack.Infrastructure.Contexts;
 using SysTrack.Infrastructure.Extensions;
+using SysTrack.Infrastructure.Persistance.Enums;
+using SysTrack.Infrastructure.Persistence;
+using SysTrack.ML;
 using SysTrack.Services;
 
 namespace SysTrack.Controllers
@@ -16,11 +19,13 @@ namespace SysTrack.Controllers
     {
         private readonly SysTrackDbContext _context;
         private readonly MotocicletaService _service;
+        private readonly ManutencaoPredictionService _predictionService;
 
-        public MotocicletaController(SysTrackDbContext context, MotocicletaService service)
+        public MotocicletaController(SysTrackDbContext context, MotocicletaService service, ManutencaoPredictionService predictionService)
         {
             _context = context;
             _service = service;
+            _predictionService = predictionService;
         }
 
         // GET: api/motocicleta?pageNumber=1&pageSize=10
@@ -48,6 +53,9 @@ namespace SysTrack.Controllers
                 DataEntrada = m.DataEntrada,
                 PatioId = m.PatioId,
                 PatioNome = m.Patio.Nome,
+                Ano = m.Ano,
+                Quilometragem = m.Quilometragem,
+                Status = m.Status,
                 Links = new List<Link>
                 {
                     new Link { Href = Url.Action(nameof(GetById), new { id = m.Id })!, Rel = "self", Method = "GET" },
@@ -76,6 +84,9 @@ namespace SysTrack.Controllers
                 DataEntrada = m.DataEntrada,
                 PatioId = m.PatioId,
                 PatioNome = m.Patio.Nome,
+                Ano = m.Ano,
+                Quilometragem = m.Quilometragem,
+                Status = m.Status,
                 Links = new List<Link>
                 {
                     new Link { Href = Url.Action(nameof(GetById), new { id = m.Id })!, Rel = "self", Method = "GET" },
@@ -91,40 +102,59 @@ namespace SysTrack.Controllers
         [HttpPost]
         public async Task<ActionResult<MotocicletaResponse>> Create([FromBody] MotocicletaRequest request)
         {
-            if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
-                return BadRequest("Capacidade máxima do pátio atingida.");
-
-            var moto = new Motocicleta
+            try
             {
-                Id = Guid.NewGuid(),
-                Placa = request.Placa,
-                Marca = request.Marca,
-                Modelo = request.Modelo,
-                Cor = request.Cor,
-                DataEntrada = DateTime.UtcNow,
-                PatioId = request.PatioId
-            };
-
-            _context.Motocicletas.Add(moto);
-            await _context.SaveChangesAsync();
-
-            var response = new MotocicletaResponse
-            {
-                Id = moto.Id,
-                Placa = moto.Placa,
-                Marca = moto.Marca,
-                Modelo = moto.Modelo,
-                Cor = moto.Cor,
-                DataEntrada = moto.DataEntrada,
-                PatioId = moto.PatioId,
-                PatioNome = (await _context.Patios.FindAsync(moto.PatioId))!.Nome,
-                Links = new List<Link>
+                var moto = new Motocicleta
                 {
-                    new Link { Href = Url.Action(nameof(GetById), new { id = moto.Id })!, Rel = "self", Method = "GET" }
-                }
-            };
+                    Id = Guid.NewGuid(),
+                    Placa = request.Placa.Trim().ToUpper(),
+                    Marca = request.Marca.Trim(),
+                    Modelo = request.Modelo.Trim(),
+                    Cor = request.Cor.Trim(),
+                    DataEntrada = DateTime.UtcNow,
+                    PatioId = request.PatioId,
+                    Ano = request.Ano,
+                    Quilometragem = request.Quilometragem,
+                    Status = request.Status
+                };
 
-            return CreatedAtAction(nameof(GetById), new { id = moto.Id }, response);
+                var criada = await _service.CriarMotocicletaAsync(moto);
+
+                var patio = await _context.Patios.FindAsync(criada.PatioId);
+
+                var response = new MotocicletaResponse
+                {
+                    Id = criada.Id,
+                    Placa = criada.Placa,
+                    Marca = criada.Marca,
+                    Modelo = criada.Modelo,
+                    Cor = criada.Cor,
+                    DataEntrada = criada.DataEntrada,
+                    PatioId = criada.PatioId,
+                    PatioNome = patio?.Nome ?? "Pátio desconhecido",
+                    Ano = criada.Ano,
+                    Quilometragem = criada.Quilometragem,
+                    Status = criada.Status,
+                    Links = new List<Link>
+                    {
+                        new Link { Href = Url.Action(nameof(GetById), new { id = criada.Id })!, Rel = "self", Method = "GET" }
+                    }
+                };
+
+                return CreatedAtAction(nameof(GetById), new { id = criada.Id }, response);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Erro = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Erro = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Erro = $"Erro interno: {ex.Message}" });
+            }
         }
 
         // PUT: api/motocicleta/{id}
@@ -132,23 +162,43 @@ namespace SysTrack.Controllers
         public async Task<ActionResult> Update(Guid id, [FromBody] AtualizarMotocicletaRequest request)
         {
             var moto = await _context.Motocicletas.FindAsync(id);
-            if (moto == null) return NotFound();
+            if (moto == null) return NotFound("Motocicleta não encontrada.");
 
-            if (moto.PatioId != request.PatioId)
+            try
             {
-                if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
-                    return BadRequest("Capacidade máxima do pátio de destino atingida.");
+                if (moto.PatioId != request.PatioId)
+                {
+                    if (!await _service.PodeAdicionarMotocicletaAsync(request.PatioId))
+                        return BadRequest("Capacidade máxima do pátio de destino atingida.");
+                }
+
+                moto.Marca = request.Marca.Trim();
+                moto.Modelo = request.Modelo.Trim();
+                moto.Cor = request.Cor.Trim();
+                moto.PatioId = request.PatioId;
+                moto.Ano = request.Ano;
+                moto.Quilometragem = request.Quilometragem;
+                moto.Status = request.Status;
+
+                // reaproveita a validação do service
+                await _service.CriarMotocicletaAsync(moto); // apenas validação, não será realmente recriada
+                _context.Motocicletas.Update(moto);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            moto.Marca = request.Marca;
-            moto.Modelo = request.Modelo;
-            moto.Cor = request.Cor;
-            moto.PatioId = request.PatioId;
-
-            _context.Motocicletas.Update(moto);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Erro = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Erro = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Erro = $"Erro interno: {ex.Message}" });
+            }
         }
 
         // DELETE: api/motocicleta/{id}
@@ -163,5 +213,28 @@ namespace SysTrack.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("prever-manutencao")]
+        public ActionResult<object> PreverManutencao([FromBody] ManutencaoInput input) // ✅ tipo correto
+        {
+            // Calcula a idade automaticamente, caso não venha no JSON
+            if (input.IdadeMoto <= 0)
+                input.IdadeMoto = DateTime.UtcNow.Year - input.Ano;
+
+            var resultado = _predictionService.PreverManutencao(input);
+
+            return Ok(new
+            {
+                input.Marca,
+                input.Modelo,
+                input.Quilometragem,
+                input.Ano,
+                input.IdadeMoto,
+                resultado.NecessitaManutencao,
+                Probabilidade = $"{resultado.Probability * 100:F1}%", // <-- formatado
+                StatusSugerido = resultado.NecessitaManutencao ? "MANUTENCAO" : "FUNCIONAL"
+            });
+        }
+
     }
 }

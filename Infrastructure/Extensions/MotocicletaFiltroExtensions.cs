@@ -1,5 +1,6 @@
 ﻿using SysTrack.DTO.Request;
 using SysTrack.Infrastructure.Persistence;
+using SysTrack.Infrastructure.Persistance.Enums; // para o enum StatusMotocicleta
 
 namespace SysTrack.Infrastructure.Extensions
 {
@@ -29,6 +30,32 @@ namespace SysTrack.Infrastructure.Extensions
 
             if (filtro.DataEntradaFim.HasValue)
                 query = query.Where(m => m.DataEntrada <= filtro.DataEntradaFim.Value);
+
+            // 🔹 Novo: filtro por status
+            if (filtro.Status.HasValue)
+                query = query.Where(m => m.Status == filtro.Status.Value);
+
+            // 🔹 Novo: filtro por ano exato
+            if (filtro.Ano.HasValue)
+                query = query.Where(m => m.Ano == filtro.Ano.Value);
+
+            // 🔹 Novo: intervalo de ano
+            if (filtro.AnoInicio.HasValue)
+                query = query.Where(m => m.Ano >= filtro.AnoInicio.Value);
+
+            if (filtro.AnoFim.HasValue)
+                query = query.Where(m => m.Ano <= filtro.AnoFim.Value);
+
+            // 🔹 Novo: quilometragem exata
+            if (filtro.Quilometragem.HasValue)
+                query = query.Where(m => m.Quilometragem == filtro.Quilometragem.Value);
+
+            // 🔹 Novo: intervalo de quilometragem
+            if (filtro.QuilometragemMin.HasValue)
+                query = query.Where(m => m.Quilometragem >= filtro.QuilometragemMin.Value);
+
+            if (filtro.QuilometragemMax.HasValue)
+                query = query.Where(m => m.Quilometragem <= filtro.QuilometragemMax.Value);
 
             return query;
         }

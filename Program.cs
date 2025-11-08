@@ -48,6 +48,8 @@ builder.Services.AddApiVersioning(options =>
 });
 
 builder.Services.AddScoped<MotocicletaService>();
+builder.Services.AddSingleton<ManutencaoPredictionService>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
